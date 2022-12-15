@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\GroupController;
 use App\Http\Controllers\Api\MChatController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
@@ -22,4 +23,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('user', [UserController::class, 'index']);
 Route::post('chat', [MChatController::class, 'store']);
+Route::get('listchat/{id}', [MChatController::class, 'getListChat']);
+Route::post('group/{id}', [GroupController::class, 'store']);
+Route::get('chatgroup/{id}', [GroupController::class, 'getConversation']);
+
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\GroupUser;
 use App\Models\HChat;
 use App\Models\MChat;
 use Illuminate\Http\Request;
@@ -21,19 +22,21 @@ class MChatController extends Controller
             if (!isset($id) && empty($id)) {
                 $chat = MChat::create($req1);
                 $id = $chat['id'];
+            } else {
+                HChat::where('m_chat_id',$id)->where('is_read',0)->where('user_from',$request->user2)->update(['is_read'=>1]);
             }
 
             $req2 = [
                 "m_chat_id" => $id,
                 "message" => $request->message,
                 "user_from" => $request->user1,
-                "user_to" => $request->user2
+                "user_to" => $request->user2,
             ];
 
             $hchat = HChat::create($req2);
             $result = [
-                "user1" => $hchat['user_to'],
-                "user2" => $hchat['user_from'],
+                "user1" => $hchat['user_from'],
+                "user2" => $hchat['user_to'],
                 "message" => $hchat['message'],
                 "created_at" => date('Y-m-d H:i:s', strtotime($hchat->created_at))
             ];
@@ -42,5 +45,36 @@ class MChatController extends Controller
         } else {
             return response()->json(['msg' => 'Tidak ada pesan yang disimpan', 'data' => null], 401);
         }
+    }
+
+    public function getListChat($user_id) {
+        $lists = MChat::select('id','user1','user2')->with(['userFrom:id,name','userTo:id,name'])->where('user1', $user_id)->orWhere('user2', $user_id)->orderBy('id', 'desc')->get();
+        if (isset($lists[0])) {
+            $data = array();
+            foreach ($lists as $key => $list) {
+                if ($list->userFrom->id == $user_id) {
+                    $kontak = $list->userTo->name;
+                    $id_kontak = $list->userTo->id;
+                } else {
+                    $kontak = $list->userFrom->name;
+                    $id_kontak = $list->userFrom->id;
+                }
+                $chat = HChat::select('id')->where('m_chat_id',$list->id)->where('user_to',$user_id)->where('is_read',0)->count();
+                $data['personal'][$key]['chat_id'] = $list->id;
+                $data['personal'][$key]['id_kontak'] = $id_kontak;
+                $data['personal'][$key]['kontak'] = $kontak;
+                $data['personal'][$key]['unread'] = $chat;
+            }
+            $groups = GroupUser::with('group')->where('user_id',$user_id)->get();
+            if (isset($groups[0])) {
+                foreach ($groups as $key => $group) {
+                    $data['group'][$key]['m_group_id'] = $group->m_group_id;
+                    $data['group'][$key]['group_name'] = $group->group->name;
+                }
+            }
+            return response()->json(['msg' => 'success', 'data' => $data], 200);
+            
+        }
+
     }
 }

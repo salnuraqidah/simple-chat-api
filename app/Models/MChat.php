@@ -15,12 +15,12 @@ class MChat extends Model
         'user2',
     ];
 
-    public function user1()
+    public function userFrom()
     {
         return $this->belongsTo(User::class, 'user1');
     }
 
-    public function user2()
+    public function userTo()
     {
         return $this->belongsTo(User::class, 'user2');
     }
