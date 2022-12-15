@@ -34,11 +34,13 @@ class GroupController extends Controller
         $chats = HGroup::with(['user'])->where('m_group_id',$id)->get();
         $data = [];
         foreach ($chats as $key => $chat) {
+            $data[$key]['id'] = $chat->id;
             $data[$key]['user_id'] = $chat->user->id;
             $data[$key]['user_name'] = $chat->user->name; 
             $data[$key]['message'] = $chat->message;
             $data[$key]['created_at'] = date('Y-m-d H:i:s', strtotime($chat->created_at));
         }
-        dd($data);
+        return response()->json(['msg' => 'success','header'=>200, 'data' => $data], 200);
+
     }
 }

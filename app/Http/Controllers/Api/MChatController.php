@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\GroupUser;
 use App\Models\HChat;
 use App\Models\MChat;
+use App\Models\StarChat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -75,6 +76,43 @@ class MChatController extends Controller
             return response()->json(['msg' => 'success', 'data' => $data], 200);
             
         }
+
+    }
+
+    public function storeStarChat(Request $request) {
+        if (isset($request['personal'][0])) {
+            foreach ($request['personal'] as $key => $personal) {
+                $data[$key]['user_id'] = $request->user_id;
+                $data[$key]['h_chat_id'] = $personal;
+            }
+        }
+        if (isset($request['group'][0])) {
+            foreach ($request['group'] as $key => $group) {
+                $data[$key]['user_id'] = $request->user_id;
+                $data[$key]['h_group_id'] = $group;
+            }
+        }
+        DB::table('m_star_chat')->insert($data);
+    }
+
+    public function getStarChat($user_id) {
+        $query = StarChat::with(['personal','group'])->where('user_id',$user_id)->get();
+        foreach ($query as $key => $value) {
+            if (isset($value->h_chat_id) && !empty($value->h_chat_id)) {
+                $data[$key]['id_conversation'] = $value->h_chat_id;
+                $data[$key]['id_chat'] = $value->personal->m_chat_id;
+                $data[$key]['tipe'] = 'personal';
+                $data[$key]['message'] = $value->personal->message;
+                $data[$key]["created_at"] = date('Y-m-d H:i:s', strtotime($value->personal->created_at));
+            } else {
+                $data[$key]['id_conversation'] = $value->h_group_id;
+                $data[$key]['id_chat'] = $value->group->m_group_id;
+                $data[$key]['tipe'] = 'group';
+                $data[$key]['message'] = $value->group->message;
+                $data[$key]["created_at"] = date('Y-m-d H:i:s', strtotime($value->group->created_at));
+            }
+        }
+        return response()->json(['msg' => 'success', 'data' => $data], 200);
 
     }
 }

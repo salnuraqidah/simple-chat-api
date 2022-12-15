@@ -26,5 +26,5 @@ Route::post('chat', [MChatController::class, 'store']);
 Route::get('listchat/{id}', [MChatController::class, 'getListChat']);
 Route::post('group/{id}', [GroupController::class, 'store']);
 Route::get('chatgroup/{id}', [GroupController::class, 'getConversation']);
-
-
+Route::post('starchat', [MChatController::class, 'storeStarChat']);
+Route::get('liststarchat/{id}', [MChatController::class, 'getStarChat']);
