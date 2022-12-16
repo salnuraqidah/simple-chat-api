@@ -24,6 +24,16 @@ class HChat extends Model
         return $this->belongsTo(MChat::class, 'm_chat_id');
     }
 
+    public function userFrom()
+    {
+        return $this->belongsTo(User::class, 'user_from');
+    }
+
+    public function userTo()
+    {
+        return $this->belongsTo(User::class, 'user_to');
+    }
+
     public function getTanggalAttribute($value)
     {
         if(empty($value)){

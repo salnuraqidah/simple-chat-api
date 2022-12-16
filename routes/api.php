@@ -25,12 +25,13 @@ Route::post('login', [AuthController::class, 'login']);
 
 Route::group(['middleware'=>['auth:sanctum']], function () { 
     Route::get('contact', [UserController::class, 'index']);
-    Route::post('chat', [MChatController::class, 'store']);
-    Route::get('listchat/{id}', [MChatController::class, 'getListChat']);
+    Route::post('chat/{id}', [MChatController::class, 'store']);
+    Route::get('listchat', [MChatController::class, 'getListChat']);
     Route::post('group/{id}', [GroupController::class, 'store']);
     Route::get('chatgroup/{id}', [GroupController::class, 'getConversation']);
+    Route::get('chatpersonal/{id}', [MChatController::class, 'getConversation']);
     Route::post('starchat', [MChatController::class, 'storeStarChat']);
-    Route::get('liststarchat/{id}', [MChatController::class, 'getStarChat']);
+    Route::get('liststarchat', [MChatController::class, 'getStarChat']);
     Route::post('logout', [AuthController::class, 'logout']);
 
 });

@@ -14,8 +14,7 @@ class AuthController extends Controller
     public function login(Request $request) {
         $validator = Validator::make($request->all(),[
             'email' => 'required|email',
-            'password' => 'required',
-            'device_name' => 'required',
+            'password' => 'required'
         ]);
 
         if($validator->fails()){
@@ -29,10 +28,11 @@ class AuthController extends Controller
         }
         $user->tokens()->delete();
      
-        $token = $user->createToken($request->device_name)->plainTextToken;
+        $token = $user->createToken('auth_token')->plainTextToken;
         $data = [
             "user" => $user,
-            "token" => $token
+            "token" => $token,
+            "token_type" => 'Bearer'
         ];
         return response()->json(['status' => true, 'message' => 'success', 'data' => $data], 200);
 

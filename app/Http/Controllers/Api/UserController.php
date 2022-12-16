@@ -10,7 +10,7 @@ class UserController extends Controller
 {
     public function index(){
         $user = User::all();
-        return response()->json(['message' => 'success', 'data' => $user], 200);
+        return response()->json(['status'=>true,'message' => 'success', 'data' => $user], 200);
 
 
     }
