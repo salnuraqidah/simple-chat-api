@@ -55,6 +55,7 @@ class MChatController extends Controller
         $user_id = auth()->user()->id;
 
         $lists = MChat::select('id','user1','user2')->with(['userFrom:id,name','userTo:id,name'])->where('user1', $user_id)->orWhere('user2', $user_id)->orderBy('id', 'desc')->get();
+        $key = null;
         if (isset($lists[0])) {
             $data = array();
             foreach ($lists as $key => $list) {
@@ -78,7 +79,9 @@ class MChatController extends Controller
                 $data[$key]['unread'] = $count;
                 $data[$key]['last_message_at'] = date('Y-m-d H:i:s', strtotime($chat->first()->updated_at));
             }
-            $no = $key+1;
+            }
+
+            $no = ($key) ? 0 : $key+1;
             $groups = GroupUser::with('group')->where('user_id',$user_id)->get();
             if (isset($groups[0])) {
                 foreach ($groups as $key => $group) {
@@ -117,9 +120,12 @@ class MChatController extends Controller
                     $data[$key]['last_message_at'] = date('Y-m-d H:i:s', strtotime($tgl));
                 }
             }
+            if (!isset($lists[0]) && !isset($groups[0])) {
+                return response()->json(['status'=>true,'message' => 'no message', 'data' => null], 200);                
+            }
             return response()->json(['status'=>true,'message' => 'success', 'data' => $data], 200);
             
-        }
+       
 
     }
 
@@ -160,6 +166,7 @@ class MChatController extends Controller
         $user_id = auth()->user()->id;
 
         $query = StarChat::with(['personal','group'])->where('user_id',$user_id)->get();
+        $data = [];
         foreach ($query as $key => $value) {
             if (isset($value->h_chat_id) && !empty($value->h_chat_id)) {
                 $chat = MChat::where('id',$value->personal->m_chat_id)->first();
